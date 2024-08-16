@@ -1,4 +1,3 @@
-import json
 from fastapi import APIRouter, Request, status, Depends
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
@@ -6,6 +5,7 @@ from .sqlite_db.database import SessionLocal
 from .sqlite_db.crud import create_call_log, get_call_logs, retrieve_call_log, delete_call_log
 from .sqlite_db.schemas import CallLog
 from datetime import datetime
+from .utils import create_process, generate_call_summary
 
 router = APIRouter()
 
@@ -30,8 +30,10 @@ def perform_call_analysis(request_data: CallLog, db: Session = Depends(get_db)):
         "duration": request_data.duration,
         "call_transcript": request_data.call_transcript
     }
-    call_log = create_call_log(db, data)
-    # model
+    call_log_object = create_call_log(db, data)
+
+    # generate call summary
+    create_process(generate_call_summary, call_log_object=call_log_object)
     return JSONResponse("Call Transcript uploaded successfully.", status_code=status.HTTP_200_OK)
 
 
@@ -74,4 +76,4 @@ def retrieve_call_details(id: int, db: Session = Depends(get_db)):
 @router.delete("/call_logs/{id}")
 def retrieve_call_details(id: int, db: Session = Depends(get_db)):
     delete_call_log(db=db, call_log_id=id)
-    return JSONResponse("Calllog deleted successfully.", status_code=status.HTTP_200_OK)
+    return JSONResponse("Call log deleted successfully.", status_code=status.HTTP_200_OK)
