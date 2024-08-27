@@ -83,3 +83,12 @@ uvicorn
 werkzeug
 wrapt
 zipp
+
+pandas
+numpy
+librosa
+scikit-learn
+torch
+whisper
+pydub
+transformers

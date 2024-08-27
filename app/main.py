@@ -18,6 +18,10 @@ tokenizer = BertTokenizer.from_pretrained(model_path)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model.to(device)
 
+UPLOAD_DIRECTORY = "audio_files"
+
+if not os.path.exists(UPLOAD_DIRECTORY):
+    os.makedirs(UPLOAD_DIRECTORY)
 
 app = FastAPI()
 
