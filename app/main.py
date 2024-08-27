@@ -4,10 +4,20 @@ from fastapi.middleware.cors import CORSMiddleware
 from .sqlite_db import models
 from .sqlite_db.database import engine
 from .api import router
+import torch
+from transformers import BertTokenizer, BertForSequenceClassification
+import os
 
 logging.basicConfig(level=logging.INFO)
 
 models.Base.metadata.create_all(bind=engine)
+
+model_path = f"{os.getcwd()}/" + "/models/fraud_detection_model_2"
+model = BertForSequenceClassification.from_pretrained(model_path)
+tokenizer = BertTokenizer.from_pretrained(model_path)
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+model.to(device)
+
 
 app = FastAPI()
 

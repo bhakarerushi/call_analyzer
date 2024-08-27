@@ -5,7 +5,7 @@ from .sqlite_db.database import SessionLocal
 from .sqlite_db.crud import create_call_log, get_call_logs, retrieve_call_log, delete_call_log
 from .sqlite_db.schemas import CallLog
 from datetime import datetime
-from .utils import create_process, generate_call_summary
+from .utils import create_process, generate_call_summary, detect_fraud_call
 
 router = APIRouter()
 
@@ -21,19 +21,24 @@ def get_db():
 
 @router.post("/perform_call_analysis")
 def perform_call_analysis(request_data: CallLog, db: Session = Depends(get_db)):
-    print("req_data", request_data)
+    # print("req_data", request_data)
     data = {
         "call_id": request_data.call_id,
         "status": "Not Analyzed",
         "start_time": datetime.strptime(request_data.start_time, "%Y-%m-%d %H:%M:%S.%f"),
         "end_time": datetime.strptime(request_data.end_time, "%Y-%m-%d %H:%M:%S.%f"),
         "duration": request_data.duration,
-        "call_transcript": request_data.call_transcript
+        "call_transcript": request_data.call_transcript,
+        "status": "InProgress"
     }
     call_log_object = create_call_log(db, data)
 
     # generate call summary
     create_process(generate_call_summary, call_log_object=call_log_object)
+
+    # fraud call detection
+    create_process(detect_fraud_call, call_log_object=call_log_object)
+
     return JSONResponse("Call Transcript uploaded successfully.", status_code=status.HTTP_200_OK)
 
 
