@@ -46,6 +46,9 @@ def generate_call_summary(db_generator: Session = get_db(), call_log_object=None
     model = BartForConditionalGeneration.from_pretrained("facebook/bart-large-cnn")
     tokenizer = BartTokenizer.from_pretrained("facebook/bart-large-cnn")
     db = [db_obj for db_obj in db_generator][0]
+    print(f"call_obj_transcript - {call_log_object.call_transcript}, transcript - {transcript}")
+
+    transcript = transcript if transcript else call_log_object.call_transcript
 
     print("call transcript", transcript)
 
